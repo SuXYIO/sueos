@@ -1,3 +1,9 @@
+# Images
+img/
+
+# Bins
+bin/
+
 # Prerequisites
 *.d
 

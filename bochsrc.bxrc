@@ -1,0 +1,10 @@
+# I intalled bochs with brew, use different paths for your own installation
+romimage: file=/usr/local/Cellar/bochs/3.0/share/bochs/BIOS-bochs-latest
+vgaromimage: file=/usr/local/Cellar/bochs/3.0/share/bochs/VGABIOS-lgpl-latest.bin
+keyboard: keymap=/usr/local/Cellar/bochs/3.0/share/bochs/keymaps/sdl2-pc-us.map
+
+floppya: 1_44="img/sueos.img", status=inserted
+boot: floppy
+mouse: enabled=0
+megs: 32
+display_library: sdl2
