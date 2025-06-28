@@ -1,0 +1,117 @@
+; the old mbr program taken from a tutorial
+; dunno why, but this disk read method is unable to read
+; the dbg shows that the program is stuck at wait_disk
+; which the data from 0x1f7 is always 0x0
+%include "boot.inc"
+StackBase equ 0x7c00
+; load loader.asm into memory
+section MBR vstart=StackBase
+	; init
+	mov ax, cs
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	mov sp, StackBase
+
+	; video
+	mov ax, 0xb800
+	mov gs, ax
+	; display clear
+	mov ax, 0x0600
+	mov bx, 0x0700
+	mov cx, 0x0000
+	; dl=80, dh=25
+	mov dx, 0x184f
+	int 0x10
+	; print msg
+	mov byte [gs:0x00], 'M'
+	mov byte [gs:0x01], 0x02
+	mov byte [gs:0x02], 'B'
+	mov byte [gs:0x03], 0x02
+	mov byte [gs:0x04], 'R'
+	mov byte [gs:0x05], 0x02
+	mov byte [gs:0x06], ' '
+	mov byte [gs:0x07], 0x02
+
+	; load loader
+	mov eax, LOADER_START_SEC
+	mov bx, LOADER_BASE_ADDR
+	mov cx, 1
+	call load_section
+	jmp LOADER_BASE_ADDR
+
+load_section:
+	; eax	Section to read from
+	; bx	Memory address to write to
+	; cx	Number of sections to read
+
+	; backup eax & cx
+	mov esi, eax
+	mov di, cx
+
+	; write arguments
+	; Number of sections
+		mov dx, 0x1f2
+		mov al, cl
+		out dx, al
+		mov eax, esi
+
+	; Section (LBA) addr
+	; 7~0
+		mov dx, 0x1f3
+		out dx, al
+	; 15~8
+		mov cl, 8
+		shr eax, cl
+		mov dx, 0x1f4
+		out dx, al
+	; 23~16
+		shr eax, cl
+		mov dx, 0x1f5
+		out dx, al
+	; 27~24
+		shr eax, cl
+		and al, 0x0f
+		; 7~4==1110 => LBA mode
+		or al, 0xe0
+		mov dx, 0x1f6
+		out dx, al
+
+	; write command
+		mov dx, 0x1f7
+		mov al, 0x20
+		out dx, al
+
+	; wait until disk ready
+	.wait_disk:
+		nop
+		in al, dx
+		; 4th digit==1 => ready
+		; 7th digit==1 => busy
+		; if (not (4th==1 and 7th!=1)) then wait
+		and al, 0x88
+		cmp al, 0x08
+		jnz .wait_disk
+
+	; calc read times
+		; di = cx = sections to read
+		mov ax, di
+		; 1 word (2 bytes) per time per section, one section 512 bytes
+		; total 256 times per section
+		mov dx, 256
+		; sections to read * time to read per section
+		; mul dx => prod=dx*ax, dx=prod.high16, ax=prod.low16
+		mul dx
+		; high16 ignored, cx=low16 for loop times
+		mov cx, ax
+		mov dx, 0x1f0
+
+	.read_loop:
+		in ax, dx
+		mov [bx], ax
+		add bx, 2
+		loop .read_loop
+	ret
+
+times 510 - ($ - $$) db 0x0
+dw 0xaa55
