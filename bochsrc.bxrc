@@ -3,7 +3,7 @@ vgaromimage: file=/usr/local/share/bochs/VGABIOS-lgpl-latest.bin
 keyboard: keymap=/usr/local/share/bochs/keymaps/sdl2-pc-us.map
 
 floppya: 1_44="img/sueos.img", status=inserted
-boot: a
+boot: floppy
 log: /dev/null
 mouse: enabled=0
 megs: 32

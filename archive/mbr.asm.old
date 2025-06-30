@@ -2,6 +2,11 @@
 ; dunno why, but this disk read method is unable to read
 ; the dbg shows that the program is stuck at wait_disk
 ; which the data from 0x1f7 is always 0x0
+; probably because this mbr uses LBA, while the new one uses CHS for floppy
+
+; Okay, I tried to boot this from a virtual hard disk and it works.
+; I'll keep this code in case I need storage bigger than 1.44M
+; Remember to replace the "LOADER"s with "OS", since I renamed them
 %include "boot.inc"
 StackBase equ 0x7c00
 ; load loader.asm into memory
