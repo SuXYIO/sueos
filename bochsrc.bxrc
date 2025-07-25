@@ -1,6 +1,6 @@
-romimage: file=/usr/local/share/bochs/BIOS-bochs-latest
-vgaromimage: file=/usr/local/share/bochs/VGABIOS-lgpl-latest.bin
-keyboard: keymap=/usr/local/share/bochs/keymaps/sdl2-pc-us.map
+romimage: file=/home/linuxbrew/.linuxbrew/share/bochs/BIOS-bochs-latest
+vgaromimage: file=/home/linuxbrew/.linuxbrew/share/bochs/VGABIOS-lgpl-latest.bin
+keyboard: keymap=/home/linuxbrew/.linuxbrew/share/bochs/keymaps/sdl2-pc-us.map
 
 floppya: 1_44="img/sueos.img", status=inserted
 boot: floppy
